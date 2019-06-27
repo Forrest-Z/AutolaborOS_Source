@@ -1,0 +1,5 @@
+[Desktop Entry]
+Name=开始建图
+Exec=/opt/autolabor/ros/catkin_ws/script/track_suit/create_map_start
+Terminal=true
+Type=Application

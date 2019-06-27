@@ -1,0 +1,8 @@
+<launch>
+    <node pkg="ah100b" type="ah100b" name="imu">
+      <param name="port" value="/dev/ah100b" type="string" />
+      <param name="bund" value="115200" type="int" />
+    </node>
+    <!--node name="rviz" pkg="rviz" type="rviz" /-->
+    <node name="rviz" pkg="rviz" type="rviz" args="-d $(find ah100b)/rviz/imu_test.rviz" />
+</launch>

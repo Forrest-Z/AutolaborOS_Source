@@ -1,0 +1,5 @@
+[Desktop Entry]
+Name=终止循迹
+Exec=/opt/autolabor/ros/catkin_ws/script/track_suit/tracking_stop
+Terminal=true
+Type=Application

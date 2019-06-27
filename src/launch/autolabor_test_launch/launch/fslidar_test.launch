@@ -1,0 +1,42 @@
+<launch>
+    <arg name="model" />
+    <arg name="gui" default="false" />
+
+    <param name="robot_description" textfile="$(find autolabor_description)/urdf/autolabor_pro1_track_suit.urdf" />
+    <param name="use_gui" value="$(arg gui)" />
+
+    <!-- 雷达驱动 前-->
+    <node pkg="wr_fslidar"  type="fslidar_node" name="fslidar_front" output="screen">
+    	<param name="dev_path"         type="string" value="/dev/box_1"/>
+    	<param name="inverted"            type="bool"   value="false"/>
+    	<param name="frame_id"            type="string" value="lidar_front"/>
+    	<param name="sample_rate"         type="int"    value="5000"/>
+    	<param name="rotational_speed"    type="int"    value="5"/>
+    	<param name="scan_topic"            type="string"   value="/scan_front"/>
+    </node>
+
+    <node pkg="laser_filters" type="scan_to_scan_filter_chain" name="lidar_filter_front">
+        <remap from="/scan" to="/scan_front" />
+        <remap from="/scan_filtered" to="/scan_1" />
+        <rosparam command="load" file="$(find autolabor_navigation_launch)/two_laser_navigation_param/front_lidar_config.yaml" />
+    </node>
+
+    <!-- 雷达驱动 后-->
+    <node pkg="wr_fslidar"  type="fslidar_node" name="fslidar_back" output="screen">
+    	<param name="dev_path"         type="string" value="/dev/box_2"/>
+    	<param name="inverted"            type="bool"   value="false"/>
+    	<param name="frame_id"            type="string" value="lidar_back"/>
+    	<param name="sample_rate"         type="int"    value="5000"/>
+    	<param name="rotational_speed"    type="int"    value="5"/>
+    	<param name="scan_topic"            type="string"   value="/scan_back"/>
+    </node>
+
+    <node pkg="laser_filters" type="scan_to_scan_filter_chain" name="lidar_filter_back">
+        <remap from="/scan" to="/scan_back" />
+        <remap from="/scan_filtered" to="/scan_2" />
+        <rosparam command="load" file="$(find autolabor_navigation_launch)/two_laser_navigation_param/back_lidar_config.yaml" />
+    </node>
+
+    <node name="robot_state_publisher" pkg="robot_state_publisher" type="state_publisher" />
+    <node name="rviz" pkg="rviz" type="rviz" args="-d $(find autolabor_test_launch)/rviz/fslidar.rviz" />
+</launch>

@@ -1,0 +1,5 @@
+[Desktop Entry]
+Name=定位标签测试
+Exec=/opt/autolabor/ros/catkin_ws/script/test/tag_test
+Terminal=false
+Type=Application

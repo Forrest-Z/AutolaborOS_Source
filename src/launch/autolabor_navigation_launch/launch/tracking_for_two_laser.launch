@@ -1,0 +1,116 @@
+<launch>
+    <arg name="model" />
+    <arg name="gui" default="false" />
+
+    <param name="robot_description" textfile="$(find autolabor_description)/urdf/autolabor_pro1_track_suit.urdf" />
+    <param name="use_gui" value="$(arg gui)" />
+
+    <!-- autolabor pro 1 驱动 -->
+    <node name="autolabor_driver" pkg="autolabor_pro1_driver" type="autolabor_pro1_driver" output="screen">
+        <remap from="/wheel_odom" to="/odom"/>
+        <param name="port_name" value="/dev/autolabor_pro1" />
+        <param name="odom_frame" value="odom" />
+        <param name="base_frame" value="base_link" />
+
+        <param name="baud_rate" value="115200" />
+        <param name="control_rate" value="10" />
+        <param name="sensor_rate" value="5" />
+
+        <param name="reduction_ratio" value="1.0" />
+        <param name="encoder_resolution" value="1600.0" />
+
+        <param name="wheel_diameter" value="0.25" />
+        <param name="model_param_cw" value="0.774" />
+	<param name="model_param_acw" value="0.774" />
+        <param name="pid_rate" value="50.0" />
+        <param name="maximum_encoding" value="32.0" />
+    </node>
+
+    <!-- 雷达驱动 前-->
+    <node pkg="wr_fslidar"  type="fslidar_node" name="fslidar_front" output="screen">
+    	<param name="dev_path"         type="string" value="/dev/box_1"/>
+    	<param name="inverted"            type="bool"   value="false"/>
+    	<param name="frame_id"            type="string" value="lidar_front"/>
+    	<param name="sample_rate"         type="int"    value="5000"/>
+    	<param name="rotational_speed"    type="int"    value="5"/>
+    	<param name="scan_topic"            type="string"   value="/scan_front"/>
+    </node>
+
+    <node pkg="laser_filters" type="scan_to_scan_filter_chain" name="lidar_filter_front">
+        <remap from="/scan" to="/scan_front" />
+        <remap from="/scan_filtered" to="/scan_1" />
+        <rosparam command="load" file="$(find autolabor_navigation_launch)/two_laser_navigation_param/front_lidar_config.yaml" />
+    </node>
+
+    <!-- 雷达驱动 后-->
+    <node pkg="wr_fslidar"  type="fslidar_node" name="fslidar_back" output="screen">
+    	<param name="dev_path"         type="string" value="/dev/box_2"/>
+    	<param name="inverted"            type="bool"   value="false"/>
+    	<param name="frame_id"            type="string" value="lidar_back"/>
+    	<param name="sample_rate"         type="int"    value="5000"/>
+    	<param name="rotational_speed"    type="int"    value="5"/>
+    	<param name="scan_topic"            type="string"   value="/scan_back"/>
+    </node>
+
+    <node pkg="laser_filters" type="scan_to_scan_filter_chain" name="lidar_filter_back">
+        <remap from="/scan" to="/scan_back" />
+        <remap from="/scan_filtered" to="/scan_2" />
+        <rosparam command="load" file="$(find autolabor_navigation_launch)/two_laser_navigation_param/back_lidar_config.yaml" />
+    </node>
+
+    <!-- 键盘遥控 -->
+    <node name="keyboard_control" pkg="autolabor_keyboard_control" type="keyboard_control_node">
+        <param name="linear_min" value="0.3" />
+        <param name="linear_max" value="0.75" />
+        <param name="linear_step" value="0.2" />
+
+        <param name="angular_min" value="0.314" />
+        <param name="angular_max" value="1.57" />
+        <param name="angular_step" value="0.314" />
+    </node>
+
+    <!-- 定位驱动 -->
+    <node pkg="marvelmind" type="marvelmind_driver" name="marvelmind_driver" output="screen">
+        <remap from="/marvelmind_hedge_pos" to="location_pos"/>
+        <param name="port_name" value="/dev/box_3"/>
+        <param name="baud_rate" value="115200"/>
+        <param name="map_frame" value="map"/>
+    </node>
+
+    <!-- 标签定位与里程计定位融合 -->
+    <node name="location_fusion" pkg="location_fusion" type="simple_fusion">
+        <param name="map_frame" value="map"/>
+        <param name="odom_frame" value="odom"/>
+        <param name="tag_frame" value="tag"/>
+
+        <param name="buffer_size" value="50"/>
+        <param name="distance_interval" value="0.1"/>
+        <param name="rate" value="200"/>
+    </node>
+
+    <!-- 录制路径 -->
+    <node name="path_saver" pkg="path_server" type="record_path_node">
+        <param name="map_frame" value="map"/>
+        <param name="base_link_frame" value="base_link"/>
+        <param name="odom_topic" value="odom"/>
+        <param name="distance_interval" value="0.2"/>
+    </node>
+
+    <!-- 加载路径 -->
+    <node name="path_loader" pkg="path_server" type="load_path_node">
+        <param name="map_frame" value="map"/>
+        <param name="path_file" value="default_path"/>
+    </node>
+
+    <!-- 导航模块 -->
+    <node pkg="move_base" type="move_base" respawn="false" name="move_base" output="screen">
+        <rosparam file="$(find autolabor_navigation_launch)/two_laser_tracking_param/move_base_params.yaml" command="load" />
+        <rosparam file="$(find autolabor_navigation_launch)/two_laser_tracking_param/global_costmap_params.yaml" command="load" ns="global_costmap"/>
+        <rosparam file="$(find autolabor_navigation_launch)/two_laser_tracking_param/local_costmap_params.yaml" command="load" ns="local_costmap"/>
+        <rosparam file="$(find autolabor_navigation_launch)/two_laser_tracking_param/loop_path_global_planner_params.yaml" command="load" ns="LoopPathPlanner"/>
+        <rosparam file="$(find autolabor_navigation_launch)/two_laser_tracking_param/teb_local_planner_params.yaml" command="load" ns="TebLocalPlannerROS"/>
+    </node>
+
+    <node name="robot_state_publisher" pkg="robot_state_publisher" type="state_publisher" />
+    <node name="rviz" pkg="rviz" type="rviz" args="-d $(find autolabor_navigation_launch)/rviz/tracking.rviz" />
+</launch>

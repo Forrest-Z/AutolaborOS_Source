@@ -1,0 +1,5 @@
+[Desktop Entry]
+Name=激光雷达测试
+Exec=/opt/autolabor/ros/catkin_ws/script/test/fslidar_test
+Terminal=false
+Type=Application

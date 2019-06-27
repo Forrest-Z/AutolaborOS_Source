@@ -1,0 +1,24 @@
+#!/bin/bash
+
+
+if [ ! -e "/dev/ah100b" ]; then
+  zenity --error --text="惯导连接失败，请检查惯导是否连接至上位机"
+  exit 0
+fi
+
+source /opt/autolabor/ros/catkin_ws/devel/setup.bash
+IP=`ifconfig wlan0 | grep "inet 地址:" | awk '{print $2}' | cut -c 8-`
+
+if [ -z "$IP" ]; then
+  IP="127.0.0.1"
+fi
+
+export ROS_MASTER_URI=http://$IP:11311/
+export ROS_IP=$IP
+
+nohup roslaunch ah100b imu_test.launch&
+sleep 3
+zenity --info --text="晃动惯导，如果发现图像跟随移动，则惯导正常"
+killall rosmaster
+
+

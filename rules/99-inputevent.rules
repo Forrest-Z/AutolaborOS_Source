@@ -1,0 +1,1 @@
+KERNEL=="event*", OWNER="root", GROUP="input", MODE="0664"

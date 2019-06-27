@@ -1,0 +1,5 @@
+[Desktop Entry]
+Name=终止导航
+Exec=/opt/autolabor/ros/catkin_ws/script/track_suit/navigation_stop
+Terminal=true
+Type=Application
