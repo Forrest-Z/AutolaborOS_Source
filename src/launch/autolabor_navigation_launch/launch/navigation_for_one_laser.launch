@@ -51,7 +51,7 @@
     <node name="cartographer_node" pkg="cartographer_ros"
       type="cartographer_node" args="
           -configuration_directory $(find cartographer_ros)/configuration_files
-          -configuration_basename one_laser_navigation.lua.lua
+          -configuration_basename one_laser_navigation.lua
           -load_state_filename $(find autolabor_navigation_launch)/map/map.pbstream"
       output="screen">
     </node>
