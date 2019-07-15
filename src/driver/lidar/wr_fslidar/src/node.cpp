@@ -90,8 +90,8 @@ int main(int argc, char **argv)
 
     nh_private.param<int>("sample_rate", sample_rate, 5000);
     nh_private.param<int>("rotational_speed", rotational_speed, 5);
-    // align_number = sample_rate / rotational_speed;
-    align_number = 400;
+    align_number = sample_rate / rotational_speed;
+    //align_number = 400;
     nh_private.param<std::string>("frame_id", frame_id, "/lidar_frame");
     nh_private.param<std::string>("dev_path", dev_path, "/dev/ttyUSB0");
     nh_private.param<bool>("origin_data", origin_data, false);
