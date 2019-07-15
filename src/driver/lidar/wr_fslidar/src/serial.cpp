@@ -1,9 +1,10 @@
 #include <iostream>
+#include <unistd.h>
 #include "serial.h"
 
 using namespace std;
 
-Serial::Serial() 
+Serial::Serial()
 {
     fd = -1;
 }
@@ -33,7 +34,7 @@ bool Serial::setOption()
 {
     tcflush(fd, TCIOFLUSH);
     int n = fcntl(fd, F_GETFL, 0);
-/*    
+/*
     struct termios termios_old;
     if (tcgetattr(fd, &termios_old) != 0)
     {
@@ -101,14 +102,14 @@ int Serial::send(const char *data, int length)
 {
     int len = 0, total_len = 0;
     if(fd <0)
-    { 
+    {
         return -1;
     }
 
-    for (total_len=0;total_len<length;) 
+    for (total_len=0;total_len<length;)
     {
         len = write(fd, &data[total_len], length-total_len);
-        if (len > 0) 
+        if (len > 0)
         {
             total_len += len;
         }
@@ -127,12 +128,10 @@ int Serial::recv(char *data, int length)
     if (fd < 0) {
        return -1;
     }
-    memset(data, 0, length);//memset()
     int len = 0;
     while((len = read(fd, data, length))<=0)
     {
-        memset(data, 0, length);
-        len = 0;
+        usleep(1000);
     }
     //printf("%02x ", (unsigned char)*data);
     //printf("read ok: %d, %02x\n", len, (unsigned char)*data);

@@ -3,7 +3,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
-#include <sys/types.h> 
+#include <sys/types.h>
 #include <sys/socket.h>
 #include <netinet/in.h>
 
@@ -18,7 +18,7 @@ using namespace std;
 int log_server_sockfd;
 int log_client_sockfd;
 int portno;
-    
+
 static unsigned char cbit[256] = {
     0,1,1,2,1,2,2,3,1,2,2,3,2,3,3,4,
     1,2,2,3,2,3,3,4,2,3,3,4,3,4,4,5,
@@ -46,7 +46,7 @@ void *logServer(void *argv)
     struct sockaddr_in serv_addr, cli_addr;
     int n;
     log_server_sockfd = socket(AF_INET, SOCK_STREAM, 0);
-    if (log_server_sockfd < 0) 
+    if (log_server_sockfd < 0)
     {
         ROS_INFO("Alloc socket fd failed.");
         return NULL;
@@ -55,7 +55,7 @@ void *logServer(void *argv)
     serv_addr.sin_family = AF_INET;
     serv_addr.sin_addr.s_addr = INADDR_ANY;
     serv_addr.sin_port = htons(12346);
-    if (bind(log_server_sockfd, (struct sockaddr *) &serv_addr, sizeof(serv_addr)) < 0) 
+    if (bind(log_server_sockfd, (struct sockaddr *) &serv_addr, sizeof(serv_addr)) < 0)
     {
         ROS_INFO("Listen on port: %d failed.", serv_addr.sin_port);
         return NULL;
@@ -66,7 +66,7 @@ void *logServer(void *argv)
     {
         log_client_sockfd = accept(log_server_sockfd, (struct sockaddr *) &cli_addr, &clilen);
         ROS_INFO("log server start");
-        if (log_client_sockfd < 0) 
+        if (log_client_sockfd < 0)
         {
             ROS_INFO("log server ERROR on accept");
             continue;
@@ -79,7 +79,7 @@ void *logServer(void *argv)
     }
     close(log_server_sockfd);
     ROS_INFO("log server thread stop.");
-    return NULL; 
+    return NULL;
 }
 
 fslidar::fslidar(int align_cnt)
@@ -192,7 +192,7 @@ int fslidar::getOnePoint(LaserDataNode *ldn, bool print)
     //log << _HEX(buff[3]) << " ";
     while ((buf_rear-buf_head)>=4)
     {
-        if ( ((*((int *)buf_head))&0x80808080) != 0x80000000) 
+        if ( ((*((int *)buf_head))&0x80808080) != 0x80000000)
         {
             buf_head++;
             continue;
@@ -202,19 +202,19 @@ int fslidar::getOnePoint(LaserDataNode *ldn, bool print)
         if(decode_rtn)
         {
             //log << "ok";
-            //if(print) 
+            //if(print)
             //    ROS_INFO("%s", log.str().c_str());
             //log << "\n";
-            //if(log_client_sockfd != -1) 
+            //if(log_client_sockfd != -1)
             //    write(log_client_sockfd,log.str().c_str(), log.str().length());
             ldn++;
             ldn_cnt++;
         }
         //log << "fail";
-        //if(print) 
+        //if(print)
         //    ROS_INFO("%s", log.str().c_str());
         //log << "\n";
-        //if(log_client_sockfd != -1) 
+        //if(log_client_sockfd != -1)
         //    write(log_client_sockfd,log.str().c_str(), log.str().length());
         //log.str("");
         buf_head += 4;
@@ -224,12 +224,12 @@ int fslidar::getOnePoint(LaserDataNode *ldn, bool print)
         recv_buf[i] = buf_head[i];
     }
     buf_head = recv_buf;
-    buf_rear = recv_buf + i;        
+    buf_rear = recv_buf + i;
     return ldn_cnt;
 #else
     static double i = 0;
     i += 5.76;
-    if (i > 5760.0) 
+    if (i > 5760.0)
     {
         i = 0.0;
     }
@@ -242,7 +242,7 @@ int fslidar::getOnePoint(LaserDataNode *ldn, bool print)
 bool fslidar::turnOn()
 {
 #ifndef _FAKE
-    if (sPort.isOpen()==false) 
+    if (sPort.isOpen()==false)
     {
         return false;
     }
@@ -255,7 +255,7 @@ bool fslidar::turnOn()
 bool fslidar::turnOff()
 {
 #ifndef _FAKE
-    if (sPort.isOpen()==false) 
+    if (sPort.isOpen()==false)
     {
         return false;
     }
