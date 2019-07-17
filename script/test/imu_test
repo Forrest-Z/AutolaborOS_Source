@@ -16,9 +16,7 @@ fi
 export ROS_MASTER_URI=http://$IP:11311/
 export ROS_IP=$IP
 
-nohup roslaunch ah100b imu_test.launch&
+nohup roslaunch autolabor_test_launch imu_test.launch&
 sleep 3
 zenity --info --text="晃动惯导，如果发现图像跟随移动，则惯导正常"
 killall rosmaster
-
-
